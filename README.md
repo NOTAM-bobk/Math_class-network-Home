@@ -21,13 +21,18 @@ npm run dev      # http://localhost:3000
 
 ```bash
 npm run typecheck  # tsc --noEmit
-npm run build      # typecheck, vite build, then write dist/404.html
+npm run build      # typecheck, vite build, SPA fallback, social card
 npm run preview    # serve the production build
 ```
 
-`scripts/spa-fallback.mjs` copies the built `index.html` to `dist/404.html`. GitHub
-Pages serves that file for unknown paths, which lets React Router render deep links such
-as `/classes/geometry` instead of a Pages 404.
+Two small build scripts run after Vite:
+
+- `scripts/spa-fallback.mjs` copies the built `index.html` to `dist/404.html`. GitHub
+  Pages serves that file for unknown paths, which lets React Router render deep links
+  such as `/classes/geometry` instead of a Pages 404.
+- `scripts/build-og.mjs` renders `dist/og-image.png` (1200×630) from flat shapes using
+  only Node's `zlib`. The social card stays in sync with the brand palette and the repo
+  stays free of binary assets.
 
 The dependency lockfile is not committed yet, so CI installs with `npm install`. Once the
 dependency set is fixed, commit `package-lock.json`, remove it from `.gitignore` and switch
@@ -70,7 +75,8 @@ src/
   lib/          SEO hook, scroll reveal hook
   pages/        Home, Classes, ClassDetail, Community, NotFound
   styles.css    design tokens and all component styles
-public/         CNAME, robots.txt, sitemap.xml, manifest, favicon, OG image
+public/         CNAME, robots.txt, sitemap.xml, manifest, favicon
+scripts/        SPA fallback for Pages, social card generator
 ```
 
 ## Content notes
