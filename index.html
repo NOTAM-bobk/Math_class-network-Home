@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MathClass Network — Math makes more sense together</title>
+    <meta
+      name="description"
+      content="A free, peer-led study network for math students: class rooms, problem sets, and people working through the same problems you are."
+    />
+    <meta name="theme-color" content="#FFFBF3" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter+Tight:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site-head">
+      <div class="wrap nav">
+        <a class="brand" href="index.html" aria-label="MathClass Network home">
+          <span class="brand-mark" aria-hidden="true">&times;</span>
+          <span class="brand-name">mathclass<span class="brand-dot">.</span>network</span>
+        </a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu">
+          <span class="nav-toggle-bars" aria-hidden="true"><span></span><span></span></span>
+          <span class="sr-only">Menu</span>
+        </button>
+        <nav class="nav-menu" id="nav-menu" aria-label="Main">
+          <a href="index.html" aria-current="page">Home</a>
+          <a href="classes.html">Classes</a>
+          <a href="community.html">Community</a>
+          <a class="btn btn-primary nav-cta" href="#start">Get started</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- hero -->
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow-pill"><span class="dot" aria-hidden="true"></span> A study network for math people</p>
+            <h1>Math makes more sense <span class="hl">together</span>.</h1>
+            <p class="lead">
+              Pick a class, drop into a room, and work through problems with people who are learning the
+              exact same thing. No sign-up maze, no gatekeeping — just math.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="classes.html">
+                Find your class
+                <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </a>
+              <a class="btn btn-ghost" href="community.html">Explore the community</a>
+            </div>
+            <ul class="hero-meta">
+              <li>Free to join</li>
+              <li>Peer-led rooms</li>
+              <li>Middle school to college</li>
+            </ul>
+          </div>
+
+          <div class="hero-visual">
+            <span class="floater f1" aria-hidden="true">&Sigma;</span>
+            <span class="floater f2" aria-hidden="true">&radic;</span>
+            <span class="floater f3" aria-hidden="true">&pi;</span>
+            <span class="floater f4" aria-hidden="true">&infin;</span>
+
+            <aside class="problem-card" aria-labelledby="problem-title">
+              <div class="problem-head">
+                <span class="tag tag-lime">Daily problem</span>
+                <span class="problem-id">#001</span>
+              </div>
+              <h2 class="problem-q" id="problem-title">
+                What is <span class="eq">12 &times; 8 &divide; 6 + 4</span>?
+              </h2>
+              <div class="answers" data-problem>
+                <button class="answer" type="button" data-value="16">16</button>
+                <button class="answer" type="button" data-value="20" data-correct>20</button>
+                <button class="answer" type="button" data-value="24">24</button>
+                <button class="answer" type="button" data-value="28">28</button>
+              </div>
+              <p class="feedback" data-feedback role="status" aria-live="polite">
+                Pick an answer — we&rsquo;ll show the working.
+              </p>
+              <div class="problem-foot">
+                <span class="streak-dots" aria-hidden="true">
+                  <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i>
+                </span>
+                <span>A new problem every day</span>
+              </div>
+            </aside>
+
+            <div class="streak-chip" aria-hidden="true">
+              <span class="streak-dots"><i class="on"></i><i class="on"></i><i class="on"></i></span>
+              <span><strong>4</strong> day streak</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- topic marquee -->
+      <div class="topics" aria-hidden="true">
+        <div class="topics-track">
+          <ul class="topics-list">
+            <li>Algebra</li>
+            <li>Geometry</li>
+            <li>Trigonometry</li>
+            <li>Pre-calculus</li>
+            <li>Calculus</li>
+            <li>Statistics</li>
+            <li>Number theory</li>
+            <li>Proofs</li>
+            <li>Olympiad prep</li>
+          </ul>
+          <ul class="topics-list">
+            <li>Algebra</li>
+            <li>Geometry</li>
+            <li>Trigonometry</li>
+            <li>Pre-calculus</li>
+            <li>Calculus</li>
+            <li>Statistics</li>
+            <li>Number theory</li>
+            <li>Proofs</li>
+            <li>Olympiad prep</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- features -->
+      <section class="section" id="features">
+        <div class="wrap">
+          <div class="sec-head" data-reveal>
+            <div>
+              <p class="eyebrow">What&rsquo;s inside</p>
+              <h2>Everything a math class needs, minus the lecture.</h2>
+            </div>
+            <p>A room per class, problems worth arguing about, and people who remember what it felt like to be stuck.</p>
+          </div>
+
+          <div class="feature-grid">
+            <article class="feature" data-reveal>
+              <span class="chip-icon tint-lime" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="12" rx="2" />
+                  <path d="M8 20h8M12 16v4" />
+                </svg>
+              </span>
+              <h3>Class rooms</h3>
+              <p>One room per course. Share notes, post a question, or just follow along with the week&rsquo;s topic.</p>
+            </article>
+
+            <article class="feature" data-reveal>
+              <span class="chip-icon tint-sky" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 7l2 2 3-4" />
+                  <path d="M13 8h7" />
+                  <path d="M4 15l2 2 3-4" />
+                  <path d="M13 16h7" />
+                </svg>
+              </span>
+              <h3>Problem sets</h3>
+              <p>Short sets with hints that nudge instead of spoil, sorted by topic and difficulty.</p>
+            </article>
+
+            <article class="feature" data-reveal>
+              <span class="chip-icon tint-coral" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.4-.7L3 21l1.6-4.5A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z" />
+                </svg>
+              </span>
+              <h3>Peer tutors</h3>
+              <p>Students a chapter ahead, not a textbook. Ask anything without feeling behind.</p>
+            </article>
+
+            <article class="feature" data-reveal>
+              <span class="chip-icon tint-indigo" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 20V11M11 20V5M17 20v-6" />
+                  <path d="M3 20h18" />
+                </svg>
+              </span>
+              <h3>Progress that sticks</h3>
+              <p>See which topics you&rsquo;ve actually got, and which ones are still a little wobbly.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- how it works -->
+      <section class="section">
+        <div class="wrap">
+          <div class="sec-head" data-reveal>
+            <div>
+              <p class="eyebrow">How it works</p>
+              <h2>Three steps, then you&rsquo;re in.</h2>
+            </div>
+          </div>
+
+          <div class="steps">
+            <article class="step" data-reveal>
+              <span class="step-num">01</span>
+              <h3>Pick your class</h3>
+              <p>Browse by level — middle school through college, plus a corner for contest math.</p>
+            </article>
+            <article class="step" data-reveal>
+              <span class="step-num">02</span>
+              <h3>Join the room</h3>
+              <p>Say hi, read the pinned notes, and see what everyone is working on this week.</p>
+            </article>
+            <article class="step" data-reveal>
+              <span class="step-num">03</span>
+              <h3>Ask, solve, explain</h3>
+              <p>Post what&rsquo;s blocking you. The fastest way to learn something is to explain it next.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- split -->
+      <section class="section">
+        <div class="wrap split">
+          <div data-reveal>
+            <p class="eyebrow">Built to be useful</p>
+            <h2>For the 11pm homework crowd.</h2>
+            <p class="lead">
+              MathClass is a network, not a course. There&rsquo;s no video to sit through and no test at the end —
+              just the class you&rsquo;re already taking, with more people in it.
+            </p>
+            <ul class="checks">
+              <li>
+                <span class="check" aria-hidden="true">✓</span>
+                <span>
+                  <strong>Stuck on one line?</strong>
+                  Paste the step you&rsquo;re on. Someone has been there this week.
+                </span>
+              </li>
+              <li>
+                <span class="check" aria-hidden="true">✓</span>
+                <span>
+                  <strong>Want to go deeper?</strong>
+                  Follow the proof threads and contest problems that never made it into class.
+                </span>
+              </li>
+              <li>
+                <span class="check" aria-hidden="true">✓</span>
+                <span>
+                  <strong>Like helping?</strong>
+                  Answer two questions a week. Explaining is the best revision there is.
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="panel" data-reveal>
+            <div class="panel-title">
+              <h3>Where you can start</h3>
+              <span class="tag tag-ghost">K&ndash;12 + college</span>
+            </div>
+            <ul class="pill-list">
+              <li class="pill">Pre-algebra</li>
+              <li class="pill">Algebra I</li>
+              <li class="pill">Algebra II</li>
+              <li class="pill">Geometry</li>
+              <li class="pill">Trigonometry</li>
+              <li class="pill">Pre-calculus</li>
+              <li class="pill">Calculus I</li>
+              <li class="pill">Calculus II</li>
+              <li class="pill">Statistics</li>
+              <li class="pill">Proofs</li>
+              <li class="pill">Number theory</li>
+              <li class="pill">Olympiad prep</li>
+            </ul>
+            <p class="panel-note">
+              Don&rsquo;t see your class? The foundation release focuses on the core sequence — more rooms are
+              coming as the network grows.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- start -->
+      <section class="cta-wrap" id="start">
+        <div class="wrap">
+          <div class="cta-inner" data-reveal>
+            <p class="eyebrow-pill"><span class="dot" aria-hidden="true"></span> Start here</p>
+            <h2>Your next math class is already here.</h2>
+            <p>
+              Browse the rooms, find the class you&rsquo;re taking, and see how other people are thinking about
+              it. The network is just getting started.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-lime" href="classes.html">Browse classes</a>
+              <a class="btn btn-outline-light" href="community.html">See the rooms</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <div class="wrap">
+        <div class="foot-grid">
+          <div class="foot-brand">
+            <a class="brand" href="index.html">
+              <span class="brand-mark" aria-hidden="true">&times;</span>
+              <span class="brand-name">mathclass<span class="brand-dot">.</span>network</span>
+            </a>
+            <p>A peer-led network for people learning math. Built by students, open to anyone.</p>
+          </div>
+          <div class="foot-col">
+            <h4>Explore</h4>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="classes.html">Classes</a></li>
+              <li><a href="community.html">Community</a></li>
+              <li><a href="index.html#start">Get started</a></li>
+            </ul>
+          </div>
+          <div class="foot-col">
+            <h4>The network</h4>
+            <ul>
+              <li><a href="index.html#features">Class rooms</a></li>
+              <li><a href="index.html#features">Problem sets</a></li>
+              <li><a href="index.html#features">Peer tutors</a></li>
+              <li><a href="community.html#rules">House rules</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="foot-bar">
+          <span>&copy; <span data-year>2026</span> MathClass Network</span>
+          <span>Foundation release &middot; made for learning</span>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/js/main.js" defer></script>
+  </body>
+</html>
