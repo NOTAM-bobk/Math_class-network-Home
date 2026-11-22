@@ -7,7 +7,7 @@
   "homepage": "https://mathclass.uk",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build && node scripts/spa-fallback.mjs",
+    "build": "tsc --noEmit && vite build && node scripts/spa-fallback.mjs && node scripts/build-og.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },
