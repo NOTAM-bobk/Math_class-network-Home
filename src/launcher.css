@@ -1,0 +1,339 @@
+/* ---------- launcher (home start bar, game-hub 3D style) ---------- */
+.launcher {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  min-height: clamp(520px, 76dvh, 720px);
+  padding: clamp(46px, 7vw, 86px) 0 clamp(58px, 8vw, 104px);
+  border-bottom: 1px solid rgba(20, 18, 31, 0.14);
+  background:
+    radial-gradient(58% 62% at 50% -12%, rgba(251, 191, 36, 0.16), transparent 72%),
+    radial-gradient(46% 58% at 88% 8%, rgba(73, 48, 245, 0.2), transparent 74%),
+    #0b0b0d;
+  color: #fafafa;
+}
+
+.launcher::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(70% 80% at 50% 30%, #000, transparent 78%);
+}
+
+.launcher-inner {
+  width: min(760px, 100% - var(--pad) * 2);
+  margin: auto;
+  padding-block: 8px 40px;
+  text-align: center;
+}
+
+.launcher-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 20px;
+  padding: 6px 13px 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  color: #e4e4e7;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.launcher-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fbbf24;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.18);
+}
+
+.launcher-title {
+  margin: 0 0 clamp(22px, 3vw, 30px);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5.2vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  color: #fafafa;
+  text-wrap: balance;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.1), 0 22px 44px rgba(0, 0, 0, 0.55);
+}
+
+.launcher-search {
+  position: relative;
+  max-width: 620px;
+  margin-inline: auto;
+  text-align: left;
+}
+
+.launcher-field {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 15px 15px 15px 19px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #26262a, #1a1a1c);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 9px 0 #050506,
+    0 34px 64px -28px rgba(0, 0, 0, 0.95);
+  cursor: text;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.launcher-field:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 11px 0 #050506,
+    0 38px 70px -28px rgba(0, 0, 0, 0.95);
+}
+
+.launcher-field.is-open,
+.launcher-field:focus-within {
+  transform: translateY(-2px);
+  border-color: rgba(251, 191, 36, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 7px 0 #050506,
+    0 30px 60px -26px rgba(0, 0, 0, 0.95),
+    0 0 0 4px rgba(251, 191, 36, 0.12);
+}
+
+.launcher-search-icon {
+  flex-shrink: 0;
+  color: #a1a1aa;
+  transition: color 0.16s ease;
+}
+
+.launcher-field.is-open .launcher-search-icon,
+.launcher-field:focus-within .launcher-search-icon {
+  color: #fbbf24;
+}
+
+.launcher-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 3px 0;
+  border: 0;
+  background: none;
+  color: #fafafa;
+  font-family: var(--font-body);
+  font-size: 1.06rem;
+  line-height: 1.4;
+  outline: none;
+}
+
+.launcher-input:focus-visible {
+  outline: none;
+}
+
+.launcher-input::placeholder {
+  color: #8b8b95;
+}
+
+.launcher-kbd {
+  flex-shrink: 0;
+  padding: 5px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  color: #a1a1aa;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+}
+
+.launcher-panel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 14px);
+  left: 0;
+  right: 0;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 16px;
+  background: #1d1d1d;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 4px 12px rgba(0, 0, 0, 0.45),
+    0 30px 70px -16px rgba(0, 0, 0, 0.85);
+  animation: launcher-pop 0.14s cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+@keyframes launcher-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launcher-panel {
+    animation: none;
+  }
+
+  .launcher-field {
+    transition: none;
+  }
+}
+
+.launcher-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 11px;
+  border-radius: 11px;
+  color: #f4f4f5;
+  text-decoration: none;
+  transition: background-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+}
+
+.launcher-option + .launcher-option {
+  margin-top: 2px;
+}
+
+.launcher-option:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.launcher-option[aria-selected="true"] {
+  background: rgba(251, 191, 36, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.28);
+}
+
+.launcher-option:active {
+  transform: scale(0.995);
+}
+
+.launcher-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #e4e4e7;
+}
+
+.launcher-option[data-tone="games"] .launcher-icon {
+  border-color: rgba(251, 191, 36, 0.26);
+  background: rgba(251, 191, 36, 0.14);
+  color: #fbbf24;
+}
+
+.launcher-option[data-tone="videos"] .launcher-icon {
+  border-color: rgba(56, 189, 248, 0.26);
+  background: rgba(56, 189, 248, 0.14);
+  color: #7dd3fc;
+}
+
+.launcher-option[data-tone="youtube"] .launcher-icon {
+  border-color: rgba(248, 113, 113, 0.26);
+  background: rgba(248, 113, 113, 0.14);
+  color: #fca5a5;
+}
+
+.launcher-option[data-tone="chat"] .launcher-icon {
+  border-color: rgba(52, 211, 153, 0.26);
+  background: rgba(52, 211, 153, 0.14);
+  color: #6ee7b7;
+}
+
+.launcher-option[data-tone="ai"] .launcher-icon {
+  border-color: rgba(167, 139, 250, 0.28);
+  background: rgba(167, 139, 250, 0.16);
+  color: #c4b5fd;
+}
+
+.launcher-option-text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.launcher-option-label {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.launcher-option-domain {
+  overflow: hidden;
+  color: #a1a1aa;
+  font-size: 0.76rem;
+  line-height: 1.3;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.launcher-option-arrow {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: #71717a;
+  opacity: 0;
+  transform: translateX(-3px);
+  transition: opacity 0.12s ease, transform 0.12s ease, color 0.12s ease;
+}
+
+.launcher-option:hover .launcher-option-arrow,
+.launcher-option[aria-selected="true"] .launcher-option-arrow {
+  color: #fbbf24;
+  opacity: 1;
+  transform: none;
+}
+
+.launcher-empty {
+  margin: 0;
+  padding: 14px 12px;
+  color: #a1a1aa;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.launcher-hint {
+  margin: 26px 0 0;
+  color: #8b8b95;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 560px) {
+  .launcher-field {
+    padding: 13px 13px 13px 15px;
+    border-radius: 15px;
+  }
+
+  .launcher-kbd {
+    display: none;
+  }
+
+  .launcher-input {
+    font-size: 1rem;
+  }
+
+  .launcher-option-label {
+    font-size: 0.94rem;
+  }
+}
