@@ -3,6 +3,7 @@ import { ProblemCard } from "../components/ProblemCard";
 import { TopicTabs } from "../components/TopicTabs";
 import { useSeo } from "../lib/seo";
 import { SITE } from "../data/site";
+import "../quick-links.css";
 
 const topicStrip = [
   "Algebra",
@@ -14,6 +15,46 @@ const topicStrip = [
   "Number theory",
   "Proofs",
   "Olympiad prep",
+];
+
+const quickLinks = [
+  {
+    href: "https://video.mathclass.uk",
+    label: "Watch math videos",
+    domain: "video.mathclass.uk",
+    tone: "tint-sky",
+    icon: (
+      <>
+        <rect x="2.5" y="5.5" width="19" height="13" rx="2.5" />
+        <path d="M7 5.5v13M17 5.5v13M2.5 12h19" />
+      </>
+    ),
+  },
+  {
+    href: "https://games.mathclass.uk",
+    label: "Play math games",
+    domain: "games.mathclass.uk",
+    tone: "tint-lime",
+    icon: (
+      <>
+        <rect x="2" y="7" width="20" height="10" rx="3.5" />
+        <path d="M7 11v3M5.5 12.5h3" />
+        <path d="M16.5 11.5h.01M18.5 14h.01" />
+      </>
+    ),
+  },
+  {
+    href: "https://yt.mathclass.uk",
+    label: "Watch on YouTube",
+    domain: "yt.mathclass.uk",
+    tone: "tint-coral",
+    icon: (
+      <>
+        <rect x="2" y="5" width="20" height="14" rx="4.5" />
+        <path d="M10.5 9.5l5 2.5-5 2.5z" />
+      </>
+    ),
+  },
 ];
 
 const levels = [
@@ -97,6 +138,54 @@ export default function Home() {
             </span>
             <ProblemCard />
           </div>
+        </div>
+      </section>
+
+      <section className="quick-links" aria-labelledby="quick-links-title">
+        <div className="wrap">
+          <h2 className="quick-links-head" id="quick-links-title">
+            Jump straight in
+          </h2>
+          <ul className="quick-grid">
+            {quickLinks.map((link) => (
+              <li key={link.domain}>
+                <a className="quick-link" href={link.href}>
+                  <span className={`quick-icon ${link.tone}`} aria-hidden="true">
+                    <svg
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.9"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      {link.icon}
+                    </svg>
+                  </span>
+                  <span className="quick-text">
+                    <span className="quick-label">{link.label}</span>
+                    <span className="quick-domain">{link.domain}</span>
+                  </span>
+                  <svg
+                    className="quick-arrow"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M7 17L17 7M9 7h8v8" />
+                  </svg>
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
