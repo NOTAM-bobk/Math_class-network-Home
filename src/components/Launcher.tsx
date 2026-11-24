@@ -26,10 +26,21 @@ function formatViews(views: number) {
   return `${Number.isInteger(thousands) ? thousands : thousands.toFixed(1)}k views`;
 }
 
-/** Most viewed first, then editor picks, then alphabetical. */
-function rankGames(games: HubGame[]) {
+/** Closest name match first, then most viewed, editor picks, alphabetical. */
+function rankGames(games: HubGame[], query = "") {
+  const phrase = query.trim().toLowerCase();
+  const nameScore = (game: HubGame) => {
+    if (!phrase) return 0;
+    const name = game.name.toLowerCase();
+    if (name === phrase) return 4;
+    if (name.startsWith(phrase)) return 3;
+    if (name.includes(phrase)) return 2;
+    return 1;
+  };
+
   return [...games].sort(
     (a, b) =>
+      nameScore(b) - nameScore(a) ||
       (b.views ?? 0) - (a.views ?? 0) ||
       Number(Boolean(b.editorsPick)) - Number(Boolean(a.editorsPick)) ||
       a.name.localeCompare(b.name),
@@ -37,7 +48,7 @@ function rankGames(games: HubGame[]) {
 }
 
 function gameMeta(game: HubGame) {
-  const values = [game.category, ...(game.tags ?? [])];
+  const values = [game.category, ...(game.tags ?? [])].filter((value): value is string => Boolean(value));
   const unique = values.filter(
     (value, index) => values.findIndex((entry) => entry.toLowerCase() === value.toLowerCase()) === index,
   );
@@ -54,9 +65,13 @@ function searchGames(query: string) {
 
   return rankGames(
     HUB_GAMES.filter((game) => {
-      const haystack = [game.name, game.category, ...(game.tags ?? [])].join(" ").toLowerCase();
+      const haystack = [game.name, game.category, game.description, ...(game.tags ?? [])]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
       return terms.every((term) => haystack.includes(term));
     }),
+    query,
   );
 }
 
@@ -110,9 +125,13 @@ export function Launcher() {
     return () => controller.abort();
   }, [debounced]);
 
-  function openVideoSearch(event: FormEvent<HTMLFormElement>) {
+  function openSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    window.location.assign(videosSearchUrl(query));
+    const term = query.trim();
+    if (!term) return;
+    // A game-only query should not land on the film catalogue's search page.
+    const gameOnly = gameMatches.length > 0 && videos.length === 0;
+    window.location.assign(gameOnly ? hubSearchUrl(term) : videosSearchUrl(term));
   }
 
   return (
@@ -138,7 +157,7 @@ export function Launcher() {
           </h1>
           <p className="start-sub">Search the games hub and the video catalogue.</p>
 
-          <form className="search-shell" role="search" onSubmit={openVideoSearch}>
+          <form className="search-shell" role="search" onSubmit={openSearch}>
             <svg
               width="18"
               height="18"
@@ -174,13 +193,13 @@ export function Launcher() {
 
           <p className="start-scope">
             <span>
-              Enter searches <a href={VIDEOS_ORIGIN}>videos.mathclass.uk</a>
+              Games from <a href={HUB_ORIGIN}>math_games</a>
             </span>
             <span className="start-scope-sep" aria-hidden="true">
               ·
             </span>
             <span>
-              games from <a href={HUB_ORIGIN}>math_games</a>
+              Videos from <a href={VIDEOS_ORIGIN}>videos.mathclass.uk</a>
             </span>
           </p>
         </div>
