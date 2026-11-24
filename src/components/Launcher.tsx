@@ -26,25 +26,47 @@ function formatViews(views: number) {
   return `${Number.isInteger(thousands) ? thousands : thousands.toFixed(1)}k views`;
 }
 
-/** Closest name match first, then most viewed, editor picks, alphabetical. */
+/** Weighted best match: exact/prefix names first, then title terms, tags and descriptions. */
 function rankGames(games: HubGame[], query = "") {
   const phrase = query.trim().toLowerCase();
-  const nameScore = (game: HubGame) => {
-    if (!phrase) return 0;
+  const terms = phrase.split(/\s+/).filter(Boolean);
+
+  if (!terms.length) {
+    return [...games].sort(
+      (a, b) =>
+        (b.views ?? 0) - (a.views ?? 0) ||
+        Number(Boolean(b.editorsPick)) - Number(Boolean(a.editorsPick)) ||
+        a.name.localeCompare(b.name),
+    );
+  }
+
+  const relevance = (game: HubGame) => {
     const name = game.name.toLowerCase();
-    if (name === phrase) return 4;
-    if (name.startsWith(phrase)) return 3;
-    if (name.includes(phrase)) return 2;
-    return 1;
+    const tags = (game.tags ?? []).join(" ").toLowerCase();
+    const description = (game.description ?? "").toLowerCase();
+    const nameHits = terms.filter((term) => name.includes(term)).length;
+    const tagHits = terms.filter((term) => tags.includes(term)).length;
+    const descriptionHits = terms.filter((term) => description.includes(term)).length;
+
+    let score = nameHits * 60 + tagHits * 20 + descriptionHits * 4;
+    if (name === phrase) score += 1000;
+    else if (name.startsWith(phrase)) score += 500;
+    else if (name.includes(phrase)) score += 250;
+    if (terms.length > 1 && nameHits === terms.length) score += 120;
+    if (name.startsWith(phrase)) score += Math.max(0, 40 - (name.length - phrase.length));
+    return score;
   };
 
-  return [...games].sort(
-    (a, b) =>
-      nameScore(b) - nameScore(a) ||
-      (b.views ?? 0) - (a.views ?? 0) ||
-      Number(Boolean(b.editorsPick)) - Number(Boolean(a.editorsPick)) ||
-      a.name.localeCompare(b.name),
-  );
+  return games
+    .map((game) => ({ game, score: relevance(game) }))
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        (b.game.views ?? 0) - (a.game.views ?? 0) ||
+        Number(Boolean(b.game.editorsPick)) - Number(Boolean(a.game.editorsPick)) ||
+        a.game.name.localeCompare(b.game.name),
+    )
+    .map(({ game }) => game);
 }
 
 function gameMeta(game: HubGame) {
@@ -139,7 +161,7 @@ export function Launcher() {
       <div className="launcher-inner">
         <header className="start-bar">
           <a className="start-brand" href="/">
-            <span className="start-brand-dot" aria-hidden="true" />
+            <img className="start-brand-logo" src="/favicon.svg" alt="" width={20} height={20} />
             math_class:network
           </a>
           <nav className="start-bookmarks" aria-label="Bookmarks">
@@ -239,7 +261,17 @@ export function Launcher() {
                         <li key={game.name}>
                           <a className="hub-result" href={game.url}>
                             <span className="hub-tile" aria-hidden="true">
-                              {game.name.charAt(0)}
+                              <span className="hub-tile-letter">{game.name.charAt(0)}</span>
+                              {game.cover ? (
+                                <img
+                                  className="hub-cover"
+                                  src={game.cover}
+                                  alt=""
+                                  loading="lazy"
+                                  decoding="async"
+                                  onError={(event) => event.currentTarget.remove()}
+                                />
+                              ) : null}
                             </span>
                             <span className="hub-text">
                               <span className="hub-name">{game.name}</span>
