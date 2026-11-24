@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { HUB_GAMES, HUB_ORIGIN, MOST_VIEWED, hubSearchUrl, type HubGame } from "../data/games";
+import { HUB_GAMES, HUB_ORIGIN, hubSearchUrl, type HubGame } from "../data/games";
 import {
   VIDEOS_ORIGIN,
   searchVideos,
-  videoWatchUrl,
   videosSearchUrl,
   type VideoResult,
 } from "../data/videos";
@@ -15,16 +14,9 @@ const BOOKMARKS = [
   { label: "AI", href: "https://math-class-ai.vercel.app" },
 ];
 
-const GAME_RESULTS = 4;
-const DEFAULT_RESULTS = 6;
-const VIDEO_RESULTS = 4;
 const MIN_VIDEO_QUERY = 2;
-
-function formatViews(views: number) {
-  if (views < 1000) return `${views} views`;
-  const thousands = views / 1000;
-  return `${Number.isInteger(thousands) ? thousands : thousands.toFixed(1)}k views`;
-}
+const TITLE = "What do you want to do";
+const DECODE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+={}/<>_";
 
 /** Weighted best match: exact/prefix names first, then title terms, tags and descriptions. */
 function rankGames(games: HubGame[], query = "") {
@@ -69,18 +61,6 @@ function rankGames(games: HubGame[], query = "") {
     .map(({ game }) => game);
 }
 
-function gameMeta(game: HubGame) {
-  const values = [game.category, ...(game.tags ?? [])].filter((value): value is string => Boolean(value));
-  const unique = values.filter(
-    (value, index) => values.findIndex((entry) => entry.toLowerCase() === value.toLowerCase()) === index,
-  );
-  return unique.slice(0, 3).join(" · ");
-}
-
-function videoMeta(video: VideoResult) {
-  return [video.type === "series" ? "Series" : "Film", video.year].filter(Boolean).join(" · ");
-}
-
 function searchGames(query: string) {
   const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (!terms.length) return rankGames(HUB_GAMES);
@@ -97,19 +77,53 @@ function searchGames(query: string) {
   );
 }
 
+/** Reveal the title letter by letter, cycling scrambled glyphs until each one resolves. */
+function useDecodedText(text: string) {
+  const [decoded, setDecoded] = useState(text);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setDecoded(text);
+      return;
+    }
+
+    const scramble = (revealed: number) =>
+      Array.from(text, (character, index) => {
+        if (character === " ") return " ";
+        if (index < revealed) return character;
+        return DECODE_GLYPHS[Math.floor(Math.random() * DECODE_GLYPHS.length)];
+      }).join("");
+
+    let revealed = 0;
+    let lastStep = 0;
+    let frame = 0;
+
+    setDecoded(scramble(0));
+
+    const step = (now: number) => {
+      if (now - lastStep >= 45) {
+        lastStep = now;
+        revealed = Math.min(revealed + 1, text.length);
+        setDecoded(scramble(revealed));
+      }
+      if (revealed < text.length) frame = window.requestAnimationFrame(step);
+    };
+
+    frame = window.requestAnimationFrame(step);
+    return () => window.cancelAnimationFrame(frame);
+  }, [text]);
+
+  return decoded;
+}
+
 /** Search start page over the games hub and the videos catalogue. */
 export function Launcher() {
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const [videos, setVideos] = useState<VideoResult[]>([]);
-  const [videoState, setVideoState] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  const title = useDecodedText(TITLE);
 
-  const trimmed = query.trim();
   const gameMatches = useMemo(() => searchGames(query), [query]);
-  const games = gameMatches.slice(0, trimmed ? GAME_RESULTS : DEFAULT_RESULTS);
-  const videoResults = videos.slice(0, VIDEO_RESULTS);
-  const videoPending = videoState === "idle" || videoState === "loading";
-  const nothingFound = Boolean(trimmed) && gameMatches.length === 0 && videoState === "ready" && videos.length === 0;
 
   useEffect(() => {
     if (!query.trim()) {
@@ -124,24 +138,20 @@ export function Launcher() {
     const term = debounced.trim();
     if (term.length < MIN_VIDEO_QUERY) {
       setVideos([]);
-      setVideoState("idle");
       return;
     }
 
     const controller = new AbortController();
     setVideos([]);
-    setVideoState("loading");
 
     searchVideos(term, controller.signal)
       .then((results) => {
         if (controller.signal.aborted) return;
         setVideos(results);
-        setVideoState("ready");
       })
       .catch(() => {
         if (controller.signal.aborted) return;
         setVideos([]);
-        setVideoState("error");
       });
 
     return () => controller.abort();
@@ -175,7 +185,8 @@ export function Launcher() {
 
         <div className="start-hero">
           <h1 className="launcher-title" id="launcher-title">
-            What do you want to do
+            <span className="sr-only">{TITLE}</span>
+            <span aria-hidden="true">{title}</span>
           </h1>
           <p className="start-sub">Search the games hub and the video catalogue.</p>
 
@@ -224,177 +235,6 @@ export function Launcher() {
               Videos from <a href={VIDEOS_ORIGIN}>videos.mathclass.uk</a>
             </span>
           </p>
-        </div>
-
-        <div className="start-results">
-          <div className="results-main">
-            <p className="results-head" aria-live="polite">
-              <span>{trimmed ? <>Results for “{trimmed}”</> : "Games on math_games"}</span>
-              <span>
-                <strong>{trimmed ? gameMatches.length : HUB_GAMES.length}</strong>{" "}
-                {trimmed ? (gameMatches.length === 1 ? "game" : "games") : "games"}
-                {trimmed && videoState === "ready" ? (
-                  <>
-                    {" · "}
-                    <strong>{videos.length}</strong> {videos.length === 1 ? "video" : "videos"}
-                  </>
-                ) : null}
-                {trimmed && (videoState === "idle" || videoState === "loading") ? <> · videos…</> : null}
-                {trimmed && videoState === "error" ? <> · videos offline</> : null}
-              </span>
-            </p>
-
-            {trimmed && nothingFound ? (
-              <p className="results-empty">No games or videos match “{trimmed}”.</p>
-            ) : (
-              <>
-                {games.length > 0 ? (
-                  <section className="result-group" aria-label="Games">
-                    {trimmed ? (
-                      <div className="result-group-head">
-                        <h2>Games</h2>
-                        <span>{gameMatches.length}</span>
-                      </div>
-                    ) : null}
-                    <ul className="hub-results">
-                      {games.map((game) => (
-                        <li key={game.name}>
-                          <a className="hub-result" href={game.url}>
-                            <span className="hub-tile" aria-hidden="true">
-                              <span className="hub-tile-letter">{game.name.charAt(0)}</span>
-                              {game.cover ? (
-                                <img
-                                  className="hub-cover"
-                                  src={game.cover}
-                                  alt=""
-                                  loading="lazy"
-                                  decoding="async"
-                                  onError={(event) => event.currentTarget.remove()}
-                                />
-                              ) : null}
-                            </span>
-                            <span className="hub-text">
-                              <span className="hub-name">{game.name}</span>
-                              <span className="hub-meta">{gameMeta(game)}</span>
-                            </span>
-                            {game.views ? <span className="hub-views">{formatViews(game.views)}</span> : null}
-                            <svg
-                              className="hub-arrow"
-                              width="14"
-                              height="14"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2.1"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              aria-hidden="true"
-                            >
-                              <path d="M5 12h14M13 6l6 6-6 6" />
-                            </svg>
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                ) : null}
-
-                {trimmed.length >= MIN_VIDEO_QUERY ? (
-                  <section className="result-group" aria-label="Videos" aria-busy={videoPending}>
-                    <div className="result-group-head">
-                      <h2>Videos</h2>
-                      <span>{videoState === "ready" ? videos.length : videoState === "error" ? "offline" : "—"}</span>
-                    </div>
-
-                    {videoPending ? <p className="results-note">Searching videos…</p> : null}
-
-                    {videoState === "error" ? (
-                      <p className="results-note">
-                        Video search is offline.{" "}
-                        <a href={videosSearchUrl(query)}>Search videos.mathclass.uk</a>.
-                      </p>
-                    ) : null}
-
-                    {videoState === "ready" && videoResults.length === 0 ? (
-                      <p className="results-note">No videos match “{trimmed}”.</p>
-                    ) : null}
-
-                    {videoResults.length > 0 ? (
-                      <ul className="hub-results">
-                        {videoResults.map((video) => (
-                          <li key={video.id}>
-                            <a className="hub-result" href={videoWatchUrl(video)}>
-                              <span
-                                className="video-thumb"
-                                style={video.poster ? { backgroundImage: `url("${video.poster}")` } : undefined}
-                                aria-hidden="true"
-                              >
-                                {video.poster ? null : "▶"}
-                              </span>
-                              <span className="hub-text">
-                                <span className="hub-name">{video.name}</span>
-                                <span className="hub-meta">{videoMeta(video)}</span>
-                              </span>
-                              {video.rating ? <span className="hub-views">{video.rating}★</span> : null}
-                              <svg
-                                className="hub-arrow"
-                                width="14"
-                                height="14"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2.1"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                aria-hidden="true"
-                              >
-                                <path d="M5 12h14M13 6l6 6-6 6" />
-                              </svg>
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : null}
-                  </section>
-                ) : null}
-
-                {trimmed && trimmed.length < MIN_VIDEO_QUERY && games.length === 0 ? (
-                  <p className="results-empty">
-                    No games match “{trimmed}”. Type {MIN_VIDEO_QUERY}+ letters to search videos too.
-                  </p>
-                ) : null}
-              </>
-            )}
-
-            <div className="results-actions">
-              <a className="results-all" href={hubSearchUrl(query)}>
-                {trimmed ? `All games for “${trimmed}” on math_games` : "Browse all games on math_games"}
-                <span aria-hidden="true">→</span>
-              </a>
-              <a className="results-all" href={videosSearchUrl(query)}>
-                {trimmed ? `All videos for “${trimmed}” on videos.mathclass.uk` : "Browse videos.mathclass.uk"}
-                <span aria-hidden="true">→</span>
-              </a>
-            </div>
-          </div>
-
-          <aside className="start-rail" aria-labelledby="rail-title">
-            <div className="rail-head">
-              <h2 id="rail-title">Most viewed</h2>
-              <span className="rail-note">2,000+ views</span>
-            </div>
-            <ul className="rail-list">
-              {MOST_VIEWED.map((game, index) => (
-                <li key={game.name}>
-                  <a className="rail-item" href={game.url}>
-                    <span className="rail-rank">{String(index + 1).padStart(2, "0")}</span>
-                    <span className="rail-name">{game.name}</span>
-                    <span className="rail-views">{game.views ? formatViews(game.views) : ""}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </aside>
         </div>
       </div>
     </section>
