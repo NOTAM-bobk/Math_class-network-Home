@@ -1,14 +1,24 @@
-import { useMemo, useState, type FormEvent } from "react";
-import { HUB_GAMES, MOST_VIEWED, hubSearchUrl, type HubGame } from "../data/games";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { HUB_GAMES, HUB_ORIGIN, MOST_VIEWED, hubSearchUrl, type HubGame } from "../data/games";
+import {
+  VIDEOS_ORIGIN,
+  searchVideos,
+  videoWatchUrl,
+  videosSearchUrl,
+  type VideoResult,
+} from "../data/videos";
 
 const BOOKMARKS = [
-  { label: "Videos", href: "https://video.mathclass.uk" },
+  { label: "Videos", href: VIDEOS_ORIGIN },
   { label: "YouTube", href: "https://yt.mathclass.uk" },
   { label: "Chat", href: "https://math-class-chat.vercel.app" },
   { label: "AI", href: "https://math-class-ai.vercel.app" },
 ];
 
-const VISIBLE_RESULTS = 6;
+const GAME_RESULTS = 4;
+const DEFAULT_RESULTS = 6;
+const VIDEO_RESULTS = 4;
+const MIN_VIDEO_QUERY = 2;
 
 function formatViews(views: number) {
   if (views < 1000) return `${views} views`;
@@ -34,6 +44,10 @@ function gameMeta(game: HubGame) {
   return unique.slice(0, 3).join(" · ");
 }
 
+function videoMeta(video: VideoResult) {
+  return [video.type === "series" ? "Series" : "Film", video.year].filter(Boolean).join(" · ");
+}
+
 function searchGames(query: string) {
   const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (!terms.length) return rankGames(HUB_GAMES);
@@ -46,179 +60,290 @@ function searchGames(query: string) {
   );
 }
 
-/** Browser-style start page over the math_games catalogue. */
+/** Search start page over the games hub and the videos catalogue. */
 export function Launcher() {
   const [query, setQuery] = useState("");
-  const ranked = useMemo(() => searchGames(query), [query]);
-  const results = ranked.slice(0, VISIBLE_RESULTS);
-  const trimmed = query.trim();
+  const [debounced, setDebounced] = useState("");
+  const [videos, setVideos] = useState<VideoResult[]>([]);
+  const [videoState, setVideoState] = useState<"idle" | "loading" | "ready" | "error">("idle");
 
-  function openHubSearch(event: FormEvent<HTMLFormElement>) {
+  const trimmed = query.trim();
+  const gameMatches = useMemo(() => searchGames(query), [query]);
+  const games = gameMatches.slice(0, trimmed ? GAME_RESULTS : DEFAULT_RESULTS);
+  const videoResults = videos.slice(0, VIDEO_RESULTS);
+  const videoPending = videoState === "idle" || videoState === "loading";
+  const nothingFound = Boolean(trimmed) && gameMatches.length === 0 && videoState === "ready" && videos.length === 0;
+
+  useEffect(() => {
+    if (!query.trim()) {
+      setDebounced("");
+      return;
+    }
+    const timer = window.setTimeout(() => setDebounced(query), 320);
+    return () => window.clearTimeout(timer);
+  }, [query]);
+
+  useEffect(() => {
+    const term = debounced.trim();
+    if (term.length < MIN_VIDEO_QUERY) {
+      setVideos([]);
+      setVideoState("idle");
+      return;
+    }
+
+    const controller = new AbortController();
+    setVideos([]);
+    setVideoState("loading");
+
+    searchVideos(term, controller.signal)
+      .then((results) => {
+        if (controller.signal.aborted) return;
+        setVideos(results);
+        setVideoState("ready");
+      })
+      .catch(() => {
+        if (controller.signal.aborted) return;
+        setVideos([]);
+        setVideoState("error");
+      });
+
+    return () => controller.abort();
+  }, [debounced]);
+
+  function openVideoSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    window.location.assign(hubSearchUrl(query));
+    window.location.assign(videosSearchUrl(query));
   }
 
   return (
     <section className="launcher" aria-labelledby="launcher-title">
       <div className="launcher-inner">
-        <div className="launcher-head">
-          <h1 className="launcher-title" id="launcher-title">
-            What do you want to do
-          </h1>
-          <p className="launcher-count">
-            <strong>{HUB_GAMES.length} games</strong> indexed from{" "}
-            <a href="https://games.mathclass.uk">math_games</a>
-          </p>
-        </div>
-
-        <div className="browser">
-          <div className="browser-tabs">
-            <span className="browser-tab">
-              <span className="browser-tab-dot" aria-hidden="true" />
-              math_class:network
-            </span>
-          </div>
-
-          <div className="browser-toolbar">
-            <div className="browser-nav">
-              <button
-                className="browser-icon-btn"
-                type="button"
-                aria-label="Go back"
-                title="Go back"
-                onClick={() => window.history.back()}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
-              </button>
-              <button
-                className="browser-icon-btn"
-                type="button"
-                aria-label="Go forward"
-                title="Go forward"
-                onClick={() => window.history.forward()}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M9 6l6 6-6 6" />
-                </svg>
-              </button>
-              <button
-                className="browser-icon-btn"
-                type="button"
-                aria-label="Reload"
-                title="Reload"
-                onClick={() => window.location.reload()}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M20 12a8 8 0 1 1-2.7-6" />
-                  <path d="M20 4v5h-5" />
-                </svg>
-              </button>
-            </div>
-
-            <form className="browser-omnibox" role="search" onSubmit={openHubSearch}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <circle cx="11" cy="11" r="6.5" />
-                <path d="M16 16l4.5 4.5" />
-              </svg>
-              <label className="sr-only" htmlFor="hub-search">
-                Search math_games
-              </label>
-              <input
-                id="hub-search"
-                className="browser-input"
-                type="search"
-                placeholder="Search games.mathclass.uk"
-                autoComplete="off"
-                spellCheck={false}
-                enterKeyHint="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-              />
-              <kbd className="browser-kbd" aria-hidden="true">
-                Enter
-              </kbd>
-            </form>
-          </div>
-
-          <nav className="browser-bookmarks" aria-label="Bookmarks">
+        <header className="start-bar">
+          <a className="start-brand" href="/">
+            <span className="start-brand-dot" aria-hidden="true" />
+            math_class:network
+          </a>
+          <nav className="start-bookmarks" aria-label="Bookmarks">
             {BOOKMARKS.map((bookmark) => (
-              <a className="browser-bookmark" key={bookmark.label} href={bookmark.href}>
+              <a className="start-bookmark" key={bookmark.label} href={bookmark.href}>
                 {bookmark.label}
               </a>
             ))}
           </nav>
+        </header>
 
-          <div className="browser-page">
-            <div className="browser-main">
-              <p className="results-head" aria-live="polite">
-                <span>{trimmed ? <>Results for “{trimmed}”</> : "Games on math_games"}</span>
-                <span>
-                  <strong>{ranked.length}</strong>{" "}
-                  {trimmed ? (ranked.length === 1 ? "match" : "matches") : "games"}
-                </span>
-              </p>
+        <div className="start-hero">
+          <h1 className="launcher-title" id="launcher-title">
+            What do you want to do
+          </h1>
+          <p className="start-sub">Search the games hub and the video catalogue.</p>
 
-              {results.length > 0 ? (
-                <ul className="hub-results">
-                  {results.map((game) => (
-                    <li key={game.name}>
-                      <a className="hub-result" href={game.url}>
-                        <span className="hub-tile" aria-hidden="true">
-                          {game.name.charAt(0)}
-                        </span>
-                        <span className="hub-text">
-                          <span className="hub-name">{game.name}</span>
-                          <span className="hub-meta">{gameMeta(game)}</span>
-                        </span>
-                        {game.views ? <span className="hub-views">{formatViews(game.views)}</span> : null}
-                        <svg
-                          className="hub-arrow"
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.1"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          aria-hidden="true"
-                        >
-                          <path d="M5 12h14M13 6l6 6-6 6" />
-                        </svg>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="results-empty">No games in the index match “{trimmed}”.</p>
-              )}
+          <form className="search-shell" role="search" onSubmit={openVideoSearch}>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="6.5" />
+              <path d="M16 16l4.5 4.5" />
+            </svg>
+            <label className="sr-only" htmlFor="network-search">
+              Search games and videos
+            </label>
+            <input
+              id="network-search"
+              className="search-input"
+              type="search"
+              placeholder="Search games and videos"
+              autoComplete="off"
+              spellCheck={false}
+              enterKeyHint="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+            <kbd className="search-kbd" aria-hidden="true">
+              Enter
+            </kbd>
+          </form>
 
+          <p className="start-scope">
+            <span>
+              Enter searches <a href={VIDEOS_ORIGIN}>videos.mathclass.uk</a>
+            </span>
+            <span className="start-scope-sep" aria-hidden="true">
+              ·
+            </span>
+            <span>
+              games from <a href={HUB_ORIGIN}>math_games</a>
+            </span>
+          </p>
+        </div>
+
+        <div className="start-results">
+          <div className="results-main">
+            <p className="results-head" aria-live="polite">
+              <span>{trimmed ? <>Results for “{trimmed}”</> : "Games on math_games"}</span>
+              <span>
+                <strong>{trimmed ? gameMatches.length : HUB_GAMES.length}</strong>{" "}
+                {trimmed ? (gameMatches.length === 1 ? "game" : "games") : "games"}
+                {trimmed && videoState === "ready" ? (
+                  <>
+                    {" · "}
+                    <strong>{videos.length}</strong> {videos.length === 1 ? "video" : "videos"}
+                  </>
+                ) : null}
+                {trimmed && (videoState === "idle" || videoState === "loading") ? <> · videos…</> : null}
+                {trimmed && videoState === "error" ? <> · videos offline</> : null}
+              </span>
+            </p>
+
+            {trimmed && nothingFound ? (
+              <p className="results-empty">No games or videos match “{trimmed}”.</p>
+            ) : (
+              <>
+                {games.length > 0 ? (
+                  <section className="result-group" aria-label="Games">
+                    {trimmed ? (
+                      <div className="result-group-head">
+                        <h2>Games</h2>
+                        <span>{gameMatches.length}</span>
+                      </div>
+                    ) : null}
+                    <ul className="hub-results">
+                      {games.map((game) => (
+                        <li key={game.name}>
+                          <a className="hub-result" href={game.url}>
+                            <span className="hub-tile" aria-hidden="true">
+                              {game.name.charAt(0)}
+                            </span>
+                            <span className="hub-text">
+                              <span className="hub-name">{game.name}</span>
+                              <span className="hub-meta">{gameMeta(game)}</span>
+                            </span>
+                            {game.views ? <span className="hub-views">{formatViews(game.views)}</span> : null}
+                            <svg
+                              className="hub-arrow"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.1"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                            >
+                              <path d="M5 12h14M13 6l6 6-6 6" />
+                            </svg>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+
+                {trimmed.length >= MIN_VIDEO_QUERY ? (
+                  <section className="result-group" aria-label="Videos" aria-busy={videoPending}>
+                    <div className="result-group-head">
+                      <h2>Videos</h2>
+                      <span>{videoState === "ready" ? videos.length : videoState === "error" ? "offline" : "—"}</span>
+                    </div>
+
+                    {videoPending ? <p className="results-note">Searching videos…</p> : null}
+
+                    {videoState === "error" ? (
+                      <p className="results-note">
+                        Video search is offline.{" "}
+                        <a href={videosSearchUrl(query)}>Search videos.mathclass.uk</a>.
+                      </p>
+                    ) : null}
+
+                    {videoState === "ready" && videoResults.length === 0 ? (
+                      <p className="results-note">No videos match “{trimmed}”.</p>
+                    ) : null}
+
+                    {videoResults.length > 0 ? (
+                      <ul className="hub-results">
+                        {videoResults.map((video) => (
+                          <li key={video.id}>
+                            <a className="hub-result" href={videoWatchUrl(video)}>
+                              <span
+                                className="video-thumb"
+                                style={video.poster ? { backgroundImage: `url("${video.poster}")` } : undefined}
+                                aria-hidden="true"
+                              >
+                                {video.poster ? null : "▶"}
+                              </span>
+                              <span className="hub-text">
+                                <span className="hub-name">{video.name}</span>
+                                <span className="hub-meta">{videoMeta(video)}</span>
+                              </span>
+                              {video.rating ? <span className="hub-views">{video.rating}★</span> : null}
+                              <svg
+                                className="hub-arrow"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.1"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                              >
+                                <path d="M5 12h14M13 6l6 6-6 6" />
+                              </svg>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </section>
+                ) : null}
+
+                {trimmed && trimmed.length < MIN_VIDEO_QUERY && games.length === 0 ? (
+                  <p className="results-empty">
+                    No games match “{trimmed}”. Type {MIN_VIDEO_QUERY}+ letters to search videos too.
+                  </p>
+                ) : null}
+              </>
+            )}
+
+            <div className="results-actions">
               <a className="results-all" href={hubSearchUrl(query)}>
-                {trimmed ? `See all results for “${trimmed}” on math_games` : "Browse all games on math_games"}
+                {trimmed ? `All games for “${trimmed}” on math_games` : "Browse all games on math_games"}
+                <span aria-hidden="true">→</span>
+              </a>
+              <a className="results-all" href={videosSearchUrl(query)}>
+                {trimmed ? `All videos for “${trimmed}” on videos.mathclass.uk` : "Browse videos.mathclass.uk"}
                 <span aria-hidden="true">→</span>
               </a>
             </div>
-
-            <aside className="browser-rail" aria-labelledby="rail-title">
-              <div className="rail-head">
-                <h2 id="rail-title">Most viewed</h2>
-                <span className="rail-note">2,000+ views</span>
-              </div>
-              <ul className="rail-list">
-                {MOST_VIEWED.map((game, index) => (
-                  <li key={game.name}>
-                    <a className="rail-item" href={game.url}>
-                      <span className="rail-rank">{String(index + 1).padStart(2, "0")}</span>
-                      <span className="rail-name">{game.name}</span>
-                      <span className="rail-views">{game.views ? formatViews(game.views) : ""}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </aside>
           </div>
+
+          <aside className="start-rail" aria-labelledby="rail-title">
+            <div className="rail-head">
+              <h2 id="rail-title">Most viewed</h2>
+              <span className="rail-note">2,000+ views</span>
+            </div>
+            <ul className="rail-list">
+              {MOST_VIEWED.map((game, index) => (
+                <li key={game.name}>
+                  <a className="rail-item" href={game.url}>
+                    <span className="rail-rank">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="rail-name">{game.name}</span>
+                    <span className="rail-views">{game.views ? formatViews(game.views) : ""}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </aside>
         </div>
       </div>
     </section>
