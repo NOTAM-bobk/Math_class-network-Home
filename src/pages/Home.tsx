@@ -43,16 +43,12 @@ export default function Home() {
     <>
       <Launcher />
 
-      <div className="topics" aria-hidden="true">
-        <div className="topics-track">
-          {[0, 1].map((copy) => (
-            <ul className="topics-list" key={copy}>
-              {topicStrip.map((topic) => (
-                <li key={`${copy}-${topic}`}>{topic}</li>
-              ))}
-            </ul>
+      <div className="topics">
+        <ul className="topics-list wrap" aria-label="Topics covered">
+          {topicStrip.map((topic) => (
+            <li key={topic}>{topic}</li>
           ))}
-        </div>
+        </ul>
       </div>
 
       <section className="section" id="features">
