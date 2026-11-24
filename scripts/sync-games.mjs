@@ -26,12 +26,21 @@ async function readJson(url) {
   return response.json();
 }
 
+async function readText(url) {
+  const response = await fetch(url, { signal: AbortSignal.timeout(20_000) });
+  if (!response.ok) throw new Error(`${url} responded ${response.status}`);
+  return response.text();
+}
+
 let catalog;
 let config;
+let coverSource = "";
 try {
-  [catalog, config] = await Promise.all([
+  [catalog, config, coverSource] = await Promise.all([
     readJson(`${SOURCE}/catalog.json`),
     readJson(`${SOURCE}/games/config.json`),
+    // Covers are optional: keep the index usable if the map moves.
+    readText(`${SOURCE}/src/lib/gameCovers.ts`).catch(() => ""),
   ]);
 } catch (error) {
   // A build with no network can still use the snapshot from the last sync.
@@ -55,6 +64,12 @@ const categoryByPath = new Map(
     .map((game) => [pathOf(game.url), game.category]),
 );
 
+// The hub generates this map from /covers; parse the plain object entries.
+const coverById = new Map();
+for (const match of coverSource.matchAll(/"([^"]+)"\s*:\s*"(\/covers\/[^"]+)"/g)) {
+  coverById.set(match[1], match[2]);
+}
+
 const games = catalog
   .filter((game) => game?.id && game?.name && game?.url && !game.disabled)
   // Hub "site-" rows point at other network sites, not games.
@@ -62,11 +77,13 @@ const games = catalog
   .map((game) => {
     const url = absoluteUrl(game.url);
     const category = categoryByPath.get(pathOf(url));
+    const cover = coverById.get(String(game.id));
     return {
       id: String(game.id),
       name: String(game.name),
       url,
       ...(category ? { category } : {}),
+      ...(cover ? { cover: `${HUB_ORIGIN}${cover}` } : {}),
       ...(game.description ? { description: String(game.description) } : {}),
       ...(Array.isArray(game.tags) && game.tags.length ? { tags: game.tags.map(String) } : {}),
       ...(game.editorsPick ? { editorsPick: true } : {}),
@@ -74,4 +91,5 @@ const games = catalog
   });
 
 await writeFile(OUTPUT, `${JSON.stringify(games, null, 2)}\n`);
-console.log(`Synced ${games.length} games from the math_class games repo`);
+const coverCount = games.filter((game) => game.cover).length;
+console.log(`Synced ${games.length} games (${coverCount} with covers) from the math_class games repo`);

@@ -5,6 +5,7 @@ export type HubGame = {
   name: string;
   url: string;
   category?: string;
+  cover?: string;
   description?: string;
   tags?: string[];
   editorsPick?: boolean;
