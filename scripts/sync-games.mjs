@@ -1,12 +1,14 @@
-// Builds src/data/games-catalog.json from the live math_class games hub.
-// The hub does not send CORS headers, so the site cannot read catalog.json at
-// runtime; this script keeps a local snapshot in sync instead.
+// Builds src/data/games-catalog.json from the math_class games repo.
+// The hub blocks non-browser requests and does not send CORS headers, so the
+// site cannot read catalog.json at runtime; the build reads the repo's raw
+// files and keeps a local snapshot in sync instead.
 //
 // Run with: npm run sync:games
 
 import { access, writeFile } from "node:fs/promises";
 
 const HUB_ORIGIN = "https://games.mathclass.uk";
+const SOURCE = "https://raw.githubusercontent.com/NOTAM-bobk/math_class/main";
 const OUTPUT = new URL("../src/data/games-catalog.json", import.meta.url);
 
 function absoluteUrl(url) {
@@ -28,8 +30,8 @@ let catalog;
 let config;
 try {
   [catalog, config] = await Promise.all([
-    readJson(`${HUB_ORIGIN}/catalog.json`),
-    readJson(`${HUB_ORIGIN}/games/config.json`),
+    readJson(`${SOURCE}/catalog.json`),
+    readJson(`${SOURCE}/games/config.json`),
   ]);
 } catch (error) {
   // A build with no network can still use the snapshot from the last sync.
@@ -72,4 +74,4 @@ const games = catalog
   });
 
 await writeFile(OUTPUT, `${JSON.stringify(games, null, 2)}\n`);
-console.log(`Synced ${games.length} games from ${HUB_ORIGIN}/catalog.json`);
+console.log(`Synced ${games.length} games from the math_class games repo`);
