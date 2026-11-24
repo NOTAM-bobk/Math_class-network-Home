@@ -4,6 +4,9 @@ node_modules/
 # lockfile is generated locally for now; CI installs from package.json
 package-lock.json
 
+# generated from the math_games catalogue by npm run sync:games
+src/data/games-catalog.json
+
 # build output
 dist/
 dist-ssr/

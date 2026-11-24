@@ -6,10 +6,14 @@
   "description": "MathClass Network — a peer-led math study network at mathclass.uk",
   "homepage": "https://mathclass.uk",
   "scripts": {
+    "predev": "npm run sync:games",
     "dev": "vite",
+    "prebuild": "npm run sync:games",
     "build": "tsc --noEmit && vite build && node scripts/spa-fallback.mjs && node scripts/build-og.mjs",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "pretypecheck": "npm run sync:games",
+    "typecheck": "tsc --noEmit",
+    "sync:games": "node scripts/sync-games.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",
