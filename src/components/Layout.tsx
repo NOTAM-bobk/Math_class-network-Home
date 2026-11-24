@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Footer } from "./Footer";
-import { Nav } from "./Nav";
 import { useReveal } from "../lib/reveal";
 
 export function Layout() {
@@ -26,7 +25,6 @@ export function Layout() {
       <a className="skip" href="#main">
         Skip to content
       </a>
-      <Nav />
       <main id="main">
         <Outlet />
       </main>
