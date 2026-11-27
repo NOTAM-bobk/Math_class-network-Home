@@ -1,0 +1,60 @@
+/* ---------- legal pages ---------- */
+.legal {
+  max-width: 68ch;
+}
+
+.legal-updated {
+  margin: 0 0 8px;
+  color: var(--ink-3);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.legal-block {
+  margin-top: 30px;
+}
+
+.legal-block h2 {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+}
+
+.legal-block p {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 0.96rem;
+  line-height: 1.7;
+}
+
+.legal-block p + p {
+  margin-top: 10px;
+}
+
+.legal-block a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-line);
+}
+
+.legal-block a:hover {
+  border-bottom-color: var(--accent);
+}
+
+.legal-back {
+  margin-top: 36px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.legal-back a {
+  color: var(--ink-2);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.legal-back a:hover {
+  color: var(--accent);
+}

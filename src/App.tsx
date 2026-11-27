@@ -4,6 +4,7 @@ import ClassDetail from "./pages/ClassDetail";
 import Classes from "./pages/Classes";
 import Community from "./pages/Community";
 import Home from "./pages/Home";
+import Legal from "./pages/Legal";
 import NotFound from "./pages/NotFound";
 
 export default function App() {
@@ -15,6 +16,8 @@ export default function App() {
         <Route path="classes" element={<Classes />} />
         <Route path="classes/:slug" element={<ClassDetail />} />
         <Route path="community" element={<Community />} />
+        <Route path="terms" element={<Legal kind="terms" />} />
+        <Route path="privacy" element={<Legal kind="privacy" />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
