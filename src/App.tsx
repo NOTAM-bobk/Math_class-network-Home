@@ -9,8 +9,9 @@ import NotFound from "./pages/NotFound";
 export default function App() {
   return (
     <Routes>
+      {/* The start page fills the viewport, so it sits outside the layout's footer. */}
+      <Route index element={<Home />} />
       <Route element={<Layout />}>
-        <Route index element={<Home />} />
         <Route path="classes" element={<Classes />} />
         <Route path="classes/:slug" element={<ClassDetail />} />
         <Route path="community" element={<Community />} />
