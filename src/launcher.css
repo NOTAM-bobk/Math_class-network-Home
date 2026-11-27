@@ -68,7 +68,7 @@
   align-items: center;
   justify-content: center;
   min-height: 0;
-  padding-bottom: clamp(56px, 15vh, 150px);
+  padding-bottom: clamp(40px, 11vh, 120px);
 }
 
 .start-search {
@@ -148,7 +148,7 @@
 /* ---------- results dropdown ---------- */
 .search-drop {
   position: absolute;
-  top: calc(100% + 12px);
+  top: 100%;
   right: 0;
   left: 0;
   z-index: 40;
@@ -157,7 +157,8 @@
   overscroll-behavior: contain;
   padding: 8px;
   border: 1px solid var(--line-strong);
-  border-radius: 22px;
+  border-top-color: rgba(255, 255, 255, 0.09);
+  border-radius: 8px 8px 22px 22px;
   background: #0d0d10;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.04),
@@ -396,5 +397,76 @@
 
   .search-drop {
     max-height: 62vh;
+  }
+}
+
+/* ---------- what the search covers ---------- */
+.start-kinds {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0;
+  margin: 20px 0 0;
+  color: var(--ink-3);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.76rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.start-kinds span + span::before {
+  content: "·";
+  margin: 0 13px;
+  color: var(--line-strong);
+}
+
+/* ---------- legal buttons ---------- */
+.start-legal {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.start-legal-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--ink-3);
+  font-size: 0.76rem;
+  text-decoration: none;
+  transition: border-color 0.14s ease, color 0.14s ease, background-color 0.14s ease;
+}
+
+.start-legal-link:hover {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.start-legal-link:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 2px;
+}
+
+@media (max-width: 620px) {
+  .start-kinds {
+    margin-top: 16px;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+  }
+
+  .start-kinds span + span::before {
+    margin: 0 9px;
+  }
+
+  .start-legal-link {
+    padding: 7px 13px 8px;
+    font-size: 0.72rem;
   }
 }
