@@ -6,6 +6,7 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from "react";
+import { Link } from "react-router-dom";
 import { HUB_GAMES, hubSearchUrl, type HubGame } from "../data/games";
 import {
   searchVideos,
@@ -386,7 +387,23 @@ export function Launcher() {
             </div>
           ) : null}
         </div>
+
+        <p className="start-kinds">
+          <span>Play</span>
+          <span>Watch</span>
+          <span>Chat</span>
+          <span>Ask</span>
+        </p>
       </div>
+
+      <footer className="start-legal">
+        <Link className="start-legal-link" to="/terms">
+          Terms of Service
+        </Link>
+        <Link className="start-legal-link" to="/privacy">
+          Privacy Policy
+        </Link>
+      </footer>
     </section>
   );
 }
